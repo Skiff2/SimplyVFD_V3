@@ -12,10 +12,8 @@
 #include "ssd1306.h"
 #include "flash.h"
 
-double kkk = 0;
-
 #define CntStepFval 25    //кол-во значений для усреднения считывания регулятора оборотов. Чем меньше - тем резче регулируется
-#define MinStartVoltage 0 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
+#define MinStartVoltage 280 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
 int MotorAmperage = 25;  //0 = контроль не испольщуется. Максимальный рабочий ток двигателя 
 
 //Тип управления запуска частотника:
@@ -46,7 +44,7 @@ int StopSpeed = 200;  // 1-1000;  0 = торможение на выбеге. Е
 
 //Служебное
 #define PI 				 3.14159 //В военное время может достигать 4
-#define TIM_PERIOD 125 //57     
+#define TIM_PERIOD 125    
 #define    DWT_CYCCNT    *(volatile unsigned long *)0xE0001004
 #define    DWT_CONTROL   *(volatile unsigned long *)0xE0001000
 #define    SCB_DEMCR     *(volatile unsigned long *)0xE000EDFC
@@ -311,8 +309,6 @@ static void sin_table_update ()
 		else
 			K = (double)CurHz/750; //!!!
 		if (K > 0.5) K = 0.5;
-
-		kkk = K;
 		
 		if (K < 0.45) //!!!
 		{
