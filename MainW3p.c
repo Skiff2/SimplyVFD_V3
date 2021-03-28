@@ -13,7 +13,7 @@
 #include "flash.h"
 
 #define CntStepFval 25    //кол-во значений для усреднения считывания регулятора оборотов. Чем меньше - тем резче регулируется
-#define MinStartVoltage 280 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
+#define MinStartVoltage 300 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
 int MotorAmperage = 25;  //0 = контроль не испольщуется. Максимальный рабочий ток двигателя 
 
 //Тип управления запуска частотника:
@@ -73,10 +73,7 @@ int SetHz = 0; //Установленная частота * 10
 
 int CurTemp = 0;
 
-#define cntVoltVals 30
-uint16_t VoltVals[cntVoltVals];
-
-int nSetVolt = 0;
+int CurVolt = 0;
 
 #define cntAmpVals 40
 uint16_t AmpVals[cntAmpVals];
@@ -662,20 +659,11 @@ void ADC1_2_IRQHandler(void)
    {
 		 int val = ADC_GetConversionValue(ADC1);
 		 
-		 	//Усреднитель значений
-			VoltVals[nSetVolt] = val;
-			nSetVolt++;
-			if (nSetVolt == cntVoltVals)
-				nSetVolt = 0;
-			
-			val = 0;
-			for(int i = 0; i < cntVoltVals; i++)
-				val += VoltVals[i];
-
-			val = val / cntVoltVals;
-			//
+		 CurVolt += (val - CurVolt)/80;
+		 
+		 val = CurVolt;
 	
-		 if (val > 3150) //380+ вольт. Тормозной резистор не справился. Тупо вырубаем всё и нехай на выбеге останавливается.
+		 if (val > 3170) //390+ вольт. Тормозной резистор не справился. Тупо вырубаем всё и нехай на выбеге останавливается.
 		 {
 			 DoErrorState();
 		 }
@@ -690,7 +678,7 @@ void ADC1_2_IRQHandler(void)
 		 {
 			 GPIO_SetBits(poSoftStart);
 		 }
-		 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.7) //Заряжаем конденсаторы мягким стартом
+		 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.5) //Заряжаем конденсаторы мягким стартом
 		 {
 				GPIO_ResetBits(poSoftStart);
 		 }
@@ -963,10 +951,13 @@ void TempControl()
     steinhart -= 273.15; 
     tmp = steinhart * 10;
 	
-	if ((fabs(CurTemp - tmp) > 10 && fabs(CurTemp - tmp) < 30)|| CurTemp == 0)
-		CurTemp = tmp;
-	
+		if (tmp < 5) return;
+		
+		CurTemp += (tmp - CurTemp)/30;
 	if (CurTemp > 700)
+
+	
+	
 		Stop(false);
 	if (CurTemp > 500)
 		GPIO_SetBits(poFanOn);

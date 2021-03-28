@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\SimplyVFD.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\SimplyVFD.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Thu Mar 11 11:33:30 2021
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun Mar 28 11:54:19 2021
 <BR><P>
 <H3>Maximum Stack Usage =        416 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -671,7 +671,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[66]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_btod_emul
 </UL>
 
-<P><STRONG><a name="[21]"></a>ADC1_2_IRQHandler</STRONG> (Thumb, 216 bytes, Stack size 16 bytes, mainw3p.o(i.ADC1_2_IRQHandler))
+<P><STRONG><a name="[21]"></a>ADC1_2_IRQHandler</STRONG> (Thumb, 184 bytes, Stack size 16 bytes, mainw3p.o(i.ADC1_2_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 400 + Unknown Stack Size
 <LI>Call Chain = ADC1_2_IRQHandler &rArr; DoErrorState &rArr; Stop &rArr; SetPrescaler &rArr; sin_table_update &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
@@ -1226,7 +1226,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;timers
 </UL>
 
-<P><STRONG><a name="[ae]"></a>TempControl</STRONG> (Thumb, 312 bytes, Stack size 40 bytes, mainw3p.o(i.TempControl))
+<P><STRONG><a name="[ae]"></a>TempControl</STRONG> (Thumb, 280 bytes, Stack size 40 bytes, mainw3p.o(i.TempControl))
 <BR><BR>[Stack]<UL><LI>Max Depth = 416 + Unknown Stack Size
 <LI>Call Chain = TempControl &rArr; Stop &rArr; SetPrescaler &rArr; sin_table_update &rArr; sin &rArr; __ieee754_rem_pio2 &rArr; __aeabi_dmul
 </UL>
@@ -1238,8 +1238,6 @@ Global Symbols
 <LI><a href="#[b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2iz
 <LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_fdiv
 <LI><a href="#[b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_f2d
-<LI><a href="#[77]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdrcmple
-<LI><a href="#[78]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_cdcmple
 <LI><a href="#[76]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_i2d
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_ddiv
 <LI><a href="#[af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__aeabi_dsub
@@ -1748,8 +1746,7 @@ Global Symbols
 <P><STRONG><a name="[78]"></a>__aeabi_cdcmple</STRONG> (Thumb, 0 bytes, Stack size 32 bytes, dleqf.o(x$fpl$dleqf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = __aeabi_cdcmple
 </UL>
-<BR>[Called By]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempControl
-<LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PowerInit
+<BR>[Called By]<UL><LI><a href="#[96]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PowerInit
 <LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AmpControlOK
 <LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC1_2_IRQHandler
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sin_table_update
@@ -1803,8 +1800,7 @@ Global Symbols
 <P><STRONG><a name="[77]"></a>__aeabi_cdrcmple</STRONG> (Thumb, 0 bytes, Stack size 16 bytes, drleqf.o(x$fpl$drleqf))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = __aeabi_cdrcmple
 </UL>
-<BR>[Called By]<UL><LI><a href="#[ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TempControl
-<LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AmpControlOK
+<BR>[Called By]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AmpControlOK
 <LI><a href="#[21]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ADC1_2_IRQHandler
 <LI><a href="#[a4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;sin_table_update
 </UL>
