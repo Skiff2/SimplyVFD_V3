@@ -24,6 +24,7 @@
 
 /* Private variables */
 static uint32_t ssd1306_I2C_Timeout;
+static uint8_t isLCDOffline = 0;
 
 /* Private defines */
 #define I2C_TRANSMITTER_MODE   0
@@ -61,6 +62,9 @@ void ssd1306_I2C_Init() {
 
 void ssd1306_I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t address, uint8_t reg, uint8_t* data, uint16_t count) {
 	uint8_t i;
+	
+	if (isLCDOffline == 1) return;
+	
 	ssd1306_I2C_Start(I2Cx, address, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
 	ssd1306_I2C_WriteData(I2Cx, reg);
 	for (i = 0; i < count; i++) {
@@ -74,6 +78,7 @@ void ssd1306_I2C_WriteMulti(I2C_TypeDef* I2Cx, uint8_t address, uint8_t reg, uin
 
 /* Private functions */
 int16_t ssd1306_I2C_Start(I2C_TypeDef* I2Cx, uint8_t address, uint8_t direction, uint8_t ack) {
+	if (isLCDOffline == 1) return 1;
 	/* Generate I2C start pulse */
 	I2Cx->CR1 |= I2C_CR1_START;
 	
@@ -81,6 +86,7 @@ int16_t ssd1306_I2C_Start(I2C_TypeDef* I2Cx, uint8_t address, uint8_t direction,
 	ssd1306_I2C_Timeout = ssd1306_I2C_TIMEOUT;
 	while (!(I2Cx->SR1 & I2C_SR1_SB)) {
 		if (--ssd1306_I2C_Timeout == 0x00) {
+			isLCDOffline = 1;
 			return 1;
 		}
 	}
@@ -124,6 +130,8 @@ int16_t ssd1306_I2C_Start(I2C_TypeDef* I2Cx, uint8_t address, uint8_t direction,
 }
 
 void ssd1306_I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t data) {
+	if (isLCDOffline == 1) return;
+	
 	/* Wait till I2C is not busy anymore */
 	ssd1306_I2C_Timeout = ssd1306_I2C_TIMEOUT;
 	while (!(I2Cx->SR1 & I2C_SR1_TXE) && ssd1306_I2C_Timeout) {
@@ -135,6 +143,8 @@ void ssd1306_I2C_WriteData(I2C_TypeDef* I2Cx, uint8_t data) {
 }
 
 void ssd1306_I2C_Write(I2C_TypeDef* I2Cx, uint8_t address, uint8_t reg, uint8_t data) {
+	if (isLCDOffline == 1) return;
+	
 	ssd1306_I2C_Start(I2Cx, address, I2C_TRANSMITTER_MODE, I2C_ACK_DISABLE);
 	ssd1306_I2C_WriteData(I2Cx, reg);
 	ssd1306_I2C_WriteData(I2Cx, data);

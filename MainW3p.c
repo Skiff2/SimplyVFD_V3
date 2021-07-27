@@ -13,7 +13,7 @@
 #include "flash.h"
 
 #define CntStepFval 25    //кол-во значений для усреднения считывания регулятора оборотов. Чем меньше - тем резче регулируется
-#define MinStartVoltage 300 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
+#define MinStartVoltage 0 //0 = контроль не испольузется. Минимальное рабочее напряжение (310В пост = 220 переменки! Указывается постоянка!, или переменка * 1.4)
 int MotorAmperage = 25;  //0 = контроль не испольщуется. Максимальный рабочий ток двигателя 
 
 //Тип управления запуска частотника:
@@ -136,7 +136,7 @@ int analogRead(uint8_t Chan)
 //Инициализация АЦП контроля силового напряжения
 void adcVoltage_init() //Напряжение на А6
 {
-	if (MinStartVoltage == 0) return; //Значит контроль напряжения не используется.
+//	if (MinStartVoltage == 0) return; //Значит контроль напряжения не используется.
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);
 	
 		//NVIC
@@ -481,7 +481,7 @@ bool AmpControlOK()
 	else
 		ret = ret - ampOffset;
 	//
-	CurrAmp = ret * -0.61f; // А * 10
+	CurrAmp = ret * -1.21f; // А * 10
 	if (MotorAmperage == 0 || !GPIO_ReadInputDataBit(poStart)) return true;
 	return (ret < Curr); //типа ток не превышен
 }
@@ -557,6 +557,7 @@ void Stop(bool PowerStop)
 		{
 			UpdateLCD(mStop);
 			SetPrescaler(i);	
+			GPIO_ResetBits(poBrake);
 			
 			if (ModuleError)
 			{
@@ -605,6 +606,8 @@ void Stop(bool PowerStop)
 	GPIO_ResetBits(GPIOA,GPIO_Pin_8);    //n
 	GPIO_ResetBits(GPIOA,GPIO_Pin_9);    //n
 	GPIO_ResetBits(GPIOA,GPIO_Pin_10);   //n
+	
+	GPIO_ResetBits(poBrake);
 }
 
 //Переход в состояние ошибки
@@ -613,6 +616,14 @@ void DoErrorState()
 		GPIO_SetBits(poError);
 		ErrorState = true;
 		Stop(false);
+	
+		SSD1306_GotoXY(17, 16); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
+		SSD1306_Puts("Error!", &Font_16x26, SSD1306_COLOR_WHITE); 
+		SSD1306_UpdateScreen();
+	
+		delay_ms(1000);
+		GPIO_ResetBits(poBrake);
+		CurHz = 0;
 }
 
 //Корректор частоты при перегрузке
@@ -642,7 +653,7 @@ void OverloadCorrection()
 					//Не забываем проверять кнопку стоп!
 					if (ToStop())
 					{
-						Stop(false);
+						Stop(true);
 						delay_ms(300);
 						break;
 					}
@@ -674,20 +685,23 @@ void ADC1_2_IRQHandler(void)
 		 {
 				GPIO_SetBits(poBrake);
 		 }
-		 else if (val > (MinStartVoltage * 8.2733) * 0.85) //Конденсаторы заряжены до 85% мин напряжения старта. Замыкаем реле старта
-		 {
-			 GPIO_SetBits(poSoftStart);
-		 }
-		 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.5) //Заряжаем конденсаторы мягким стартом
-		 {
-				GPIO_ResetBits(poSoftStart);
-		 }
-		 else if (val > 100 && val < 2813) //340- вольт - гасим тормозной резистор
-		 {
-			 GPIO_ResetBits(poBrake);
-			 GPIO_SetBits(poSoftStart);
-		 }
-
+		 else if (MinStartVoltage > 0) //Эти части только при включённом контроле минимального напряжения
+		 {			 
+				 if (val > (MinStartVoltage * 8.2733) * 0.85) //Конденсаторы заряжены до 85% мин напряжения старта. Замыкаем реле старта
+				 {
+					 GPIO_SetBits(poSoftStart);
+				 }
+				 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.5) //Заряжаем конденсаторы мягким стартом
+				 {
+						GPIO_ResetBits(poSoftStart);
+				 }
+				 else if (val > 100 && val < 2813) //340- вольт - гасим тормозной резистор
+				 {
+					 GPIO_ResetBits(poBrake);
+					 GPIO_SetBits(poSoftStart);
+				 }
+		}
+		 
 		 ADC_ClearITPendingBit(ADC1,ADC_IT_AWD);
    }  
 }
@@ -787,7 +801,7 @@ void Start()
 		//Проверяемся на стоп
 		if (ToStop())
 		{
-			Stop(false);
+			Stop(true);
 			delay_ms(300);
 			return;
 		}
@@ -954,11 +968,14 @@ void TempControl()
 		if (tmp < 5) return;
 		
 		CurTemp += (tmp - CurTemp)/30;
-	if (CurTemp > 700)
-
-	
-	
+	if (CurTemp > 750)
+	{
 		Stop(false);
+		SSD1306_GotoXY(17, 16); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
+		SSD1306_Puts("Too hot!", &Font_16x26, SSD1306_COLOR_WHITE); 
+		SSD1306_UpdateScreen();
+		delay_ms(5000);
+	}
 	if (CurTemp > 500)
 		GPIO_SetBits(poFanOn);
 	if (CurTemp < 400)
