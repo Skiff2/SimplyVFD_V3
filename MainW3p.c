@@ -909,41 +909,7 @@ void UpdateLCD(int wType)
 					//SSD1306_Puts(">>>>>>>>", &Font_7x10, SSD1306_COLOR_WHITE);
 					GPIO_ResetBits(poRev);
 			
-		break;
-//		case 1:
-//			SSD1306_GotoXY(10, 0); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			SSD1306_Puts("Start spin:", &Font_11x18, SSD1306_COLOR_WHITE); 
-//			SSD1306_GotoXY(10, 23); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			if (IsRev)
-//				SSD1306_Puts("Reverce", &Font_16x26, SSD1306_COLOR_WHITE);
-//			else
-//				SSD1306_Puts("Forward", &Font_16x26, SSD1306_COLOR_WHITE);
-//		break;
-//		case 2:
-//			SSD1306_GotoXY(10, 0); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			SSD1306_Puts("Speed start:", &Font_11x18, SSD1306_COLOR_WHITE); 
-//			SSD1306_GotoXY(10, 23); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			sprintf(buf, "%d%%", StartSpeed);
-//			SSD1306_Puts(&buf, &Font_16x26, SSD1306_COLOR_WHITE);
-//		break;
-//		case 3:
-//			SSD1306_GotoXY(10, 0); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			SSD1306_Puts("Speed stop:", &Font_11x18, SSD1306_COLOR_WHITE); 
-//			SSD1306_GotoXY(10, 23); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			sprintf(buf, "%d%%", StopSpeed);
-//			SSD1306_Puts(&buf, &Font_16x26, SSD1306_COLOR_WHITE);
-//		break;
-//		case 4:
-//			SSD1306_GotoXY(10, 0); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			SSD1306_Puts("Motor amperage:", &Font_11x18, SSD1306_COLOR_WHITE); 
-//			SSD1306_GotoXY(10, 23); //Устанавливаем курсор в позицию Сначала по горизонтали, потом вертикали.
-//			sprintf(buf, "%dA", MotorAmperage);
-//			if (MotorAmperage)
-//				SSD1306_Puts(&buf, &Font_16x26, SSD1306_COLOR_WHITE);
-//			else
-//				SSD1306_Puts("Not use", &Font_16x26, SSD1306_COLOR_WHITE);
-//		break;
-		
+		break;	
 	}	
 
 		SSD1306_UpdateScreen();	
@@ -1070,61 +1036,6 @@ int main(void)
 			}
 		}
 		
-//		//меню
-//		if (!GPIO_ReadInputDataBit(piSetts))
-//		{
-//				delay_ms(10);
-//				if (!GPIO_ReadInputDataBit(piSetts)) //Вдруг помеха? убеждаемся что через 10 мс "никто не передумал" =)
-//				{
-//					if (menuMode < 4)
-//						menuMode ++;
-//					else
-//					{
-//						SaveSettings();
-//						menuMode = 0;
-//					}
-//					
-//						delay_ms(200);
-//				}
-//		}
-		
-//		// +
-//		if (!GPIO_ReadInputDataBit(piPlus))
-//		{
-//				delay_ms(10);
-//				if (!GPIO_ReadInputDataBit(piPlus)) //Вдруг помеха? убеждаемся что через 10 мс "никто не передумал" =)
-//				{
-//					if (menuMode > 0) HasChangesMenu = true;
-//					switch(menuMode)
-//					{
-//						case 0: 
-//						case 1:	IsRev = !IsRev; break;
-//						case 2:	if (StartDelim > 1)	StartDelim --; break;
-//						case 3:	if (StopDelim > 1)	StopDelim --; break;
-//						case 4:	if (MotorAmperage < 30)	MotorAmperage ++; break;
-//					}
-//					delay_ms(150);
-//				}
-//		}
-		
-		// -
-//		if (!GPIO_ReadInputDataBit(piMinus))
-//		{
-//				delay_ms(10);
-//				if (!GPIO_ReadInputDataBit(piMinus)) //Вдруг помеха? убеждаемся что через 10 мс "никто не передумал" =)
-//				{
-//					if (menuMode > 0) HasChangesMenu = true;
-//					switch(menuMode)
-//					{
-//						case 0: 
-//						case 1:	IsRev = !IsRev; break;
-//						case 2:	if (StartDelim < 100)	StartDelim ++; break;
-//						case 3:	if (StopDelim < 100)	StopDelim ++; break;
-//						case 4:	if (MotorAmperage > 0)	MotorAmperage --; break;
-//					}
-//					delay_ms(150);
-//				}
-//		}
 		
 		//Переключился на реверс?
 		if (!GPIO_ReadInputDataBit(piRev))
