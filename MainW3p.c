@@ -72,10 +72,9 @@ int CurHz = 0; //фактическая частота * 10
 int SetHz = 0; //Установленная частота * 10
 
 int CurTemp = 0;
-
 int CurVolt = 0;
 
-#define cntAmpVals 40
+#define cntAmpVals 38
 uint16_t AmpVals[cntAmpVals];
 int nSetAmp = 0;
 int CurrAmp = 0; // значение x10!
@@ -160,7 +159,7 @@ void adcVoltage_init() //Напряжение на А6
     ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 1, ADC_SampleTime_239Cycles5);
  
 	/* Ограничители низкого и высокого уровня напряжений*/
-  	ADC_AnalogWatchdogThresholdsConfig(ADC1, 330 * 8.2733, MinStartVoltage * 8.2733); //Безопасный диапазон в В * коэф АЦП = 8.2733
+  	ADC_AnalogWatchdogThresholdsConfig(ADC1, 330 * 8.2733, 0); //Безопасный диапазон в В * коэф АЦП = 8.2733
     ADC_AnalogWatchdogSingleChannelConfig(ADC1, ADC_Channel_6);
     ADC_AnalogWatchdogCmd(ADC1, ADC_AnalogWatchdog_SingleRegEnable);
  
@@ -670,37 +669,38 @@ void ADC1_2_IRQHandler(void)
    {
 		 int val = ADC_GetConversionValue(ADC1);
 		 
-		 CurVolt += (val - CurVolt)/80;
+		 CurVolt += (val - CurVolt)/10;
 		 
 		 val = CurVolt;
 	
-		 if (val > 3170) //390+ вольт. Тормозной резистор не справился. Тупо вырубаем всё и нехай на выбеге останавливается.
+		 if (val > 370 * 8.2733 ) //3170 390+ вольт. Тормозной резистор не справился. Тупо вырубаем всё и нехай на выбеге останавливается.
 		 {
-			 DoErrorState();
+			 DoErrorState(2);
 		 }
-		 else if (val > 2900) // 350+ вольт  - включаем тормозной резистор и вырубаем реле запуска
-			 //вырубаем реле, потому что компаратор может упустить момент, когда напряжение резко упадёт ниже его порога. 
-		   //И если реле останется включено, то мы тупо получим печку. А так, из-за пускового сопротивления, напряжение быстро упадёт ниже стартового
-		   //И начнётя новый цикл заряда. При этом, конечно, тормозной резистор будет отключен.
+		 else if (val > 340 * 8.2733) // 2900 350+ вольт  - включаем тормозной резистор и вырубаем реле запуска
 		 {
 				GPIO_SetBits(poBrake);
 		 }
-		 else if (MinStartVoltage > 0) //Эти части только при включённом контроле минимального напряжения
-		 {			 
-				 if (val > (MinStartVoltage * 8.2733) * 0.85) //Конденсаторы заряжены до 85% мин напряжения старта. Замыкаем реле старта
-				 {
-					 GPIO_SetBits(poSoftStart);
-				 }
-				 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.5) //Заряжаем конденсаторы мягким стартом
-				 {
-						GPIO_ResetBits(poSoftStart);
-				 }
-				 else if (val > 100 && val < 2813) //340- вольт - гасим тормозной резистор
-				 {
-					 GPIO_ResetBits(poBrake);
-					 GPIO_SetBits(poSoftStart);
-				 }
-		}
+		 else if (val < 338 * 8.2733) // Выключаем тормозной резистор 
+		 {
+				GPIO_ResetBits(poBrake);
+		 }
+//		 else if (MinStartVoltage > 0) //Эти части только при включённом контроле минимального напряжения
+//		 {			 
+//				 if (val > (MinStartVoltage * 8.2733) * 0.85) //Конденсаторы заряжены до 85% мин напряжения старта. Замыкаем реле старта
+//				 {
+//					 GPIO_SetBits(poSoftStart);
+//				 }
+//				 else if (val > 100 && val < (MinStartVoltage * 8.2733) * 0.5) //Заряжаем конденсаторы мягким стартом
+//				 {
+//						GPIO_ResetBits(poSoftStart);
+//				 }
+//				 else if (val > 100 && val < 2813) //340- вольт - гасим тормозной резистор
+//				 {
+//					 GPIO_ResetBits(poBrake);
+//					 GPIO_SetBits(poSoftStart);
+//				 }
+//		}
 		 
 		 ADC_ClearITPendingBit(ADC1,ADC_IT_AWD);
    }  
@@ -776,7 +776,7 @@ void Start()
 	//Выход на рабочие
 	int ErrCycle = 0;
 	
-	for (i = 25; i < val; i++) 
+	for (i = 25; i < val; i+= 3) 
 	{
 		UpdateLCD(mStart);
 		
