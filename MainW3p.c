@@ -288,7 +288,7 @@ void timers(void) {
 	TIM_BDTRInitStructure.TIM_OSSRState = TIM_OSSRState_Enable;
 	TIM_BDTRInitStructure.TIM_OSSIState = TIM_OSSIState_Enable;
 	TIM_BDTRInitStructure.TIM_LOCKLevel = TIM_LOCKLevel_1;
-	TIM_BDTRInitStructure.TIM_DeadTime = 128; //Много - не мало. Но мало - дорого =)
+	TIM_BDTRInitStructure.TIM_DeadTime = 250; //Много - не мало. Но мало - дорого =)
 	TIM_BDTRInitStructure.TIM_Break = TIM_Break_Disable;
 	TIM_BDTRInitStructure.TIM_BreakPolarity = TIM_BreakPolarity_High;
 	TIM_BDTRInitStructure.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable;
@@ -303,25 +303,25 @@ static void sin_table_update ()
 		else if (CurHz < 110) 
 			K = 0.15;
 		else
-			K = (double)CurHz/750; //!!!
+			K = (double)CurHz/950; //!!!
 		if (K > 0.5) K = 0.5;
 		
-		if (K < 0.45) //!!!
-		{
-			K = (TIM_PERIOD * K) * 1.1;
-			for(uint16_t i = 0; i < TIM_STEPS; ++i)
-			{
-				sinM[i] = (uint16_t)(K * (1 + sin(PI * (2.02 * i / (double)TIM_STEPS))));
-			}
-		}
-		else
-		{
-			K = TIM_PERIOD * 0.5 * 1.15;
+//		if (K < 0.45) //!!!
+//		{
+//			K = (TIM_PERIOD * K) * 1.1;
+//			for(uint16_t i = 0; i < TIM_STEPS; ++i)
+//			{
+//				sinM[i] = (uint16_t)(K * (1 + sin(PI * (2.02 * i / (double)TIM_STEPS))));
+//			}
+//		}
+//		else
+//		{
+			K = TIM_PERIOD * K * 1.15;
 			for(uint16_t i = 0; i < TIM_STEPS; ++i)
 			{
 				sinM[i] = (uint16_t)(K * (0.87 + sin(PI * (2.02 * i / (double)TIM_STEPS)) + 0.18 * sin(PI * (2.02 * i*3 / (double)TIM_STEPS))));
 			}
-		}              
+//		}              
 }
 
 //Инициализация каналов DMA для каждой фазы
